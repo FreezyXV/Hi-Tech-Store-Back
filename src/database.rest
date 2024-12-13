@@ -1,0 +1,46 @@
+//"token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NzFiODRhMmQ2ZmVmNjBmY2I2YmM2ZjAiLCJpYXQiOjE3Mjk4NTY2NzQsImV4cCI6MTcyOTg2MDI3NH0.fS4I28WpAqlrzCdl00MzdZbV93rCWTot4TKuY4tp8cs"
+
+# POST http://localhost:5001/api/auth/register
+# Content-Type: application/json
+
+# {
+#   "username": "testuser",
+#   "email": "testuser@example.com",
+#   "password": "password123"
+# }
+
+
+
+
+POST http://localhost:5001/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "password123"
+}
+
+
+# GET http://localhost:5001/api/users
+# Authorization: Bearer {{TOKEN}}
+
+
+# GET http://localhost:5001/api/users/{{userId}}
+# Authorization: Bearer {{TOKEN}}
+
+
+# PUT http://localhost:5001/api/users/{{userId}}
+# Authorization: Bearer {{TOKEN}}
+# Content-Type: application/json
+
+# {
+#   "username": "updateduser",
+#   "email": "updateduser@example.com",
+#   "password": "newpassword123"
+# }
+
+
+# DELETE http://localhost:5001/api/users/{{userId}}
+# Authorization: Bearer {{TOKEN}}
+
+
