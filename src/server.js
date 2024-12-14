@@ -34,11 +34,19 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 
+// const allowedOrigins = [
+//   process.env.FRONTEND_URL || "http://localhost:5173", // Allow localhost during development
+//   "https://freezyxv.github.io",                       // Allow your GitHub Pages URL
+//   "https://js.stripe.com", 'https://hi-tech-store-front.vercel.app'                           // Allow Stripe's API
+// ];
+
 const allowedOrigins = [
-  process.env.FRONTEND_URL || "http://localhost:5173", // Allow localhost during development
-  "https://freezyxv.github.io",                       // Allow your GitHub Pages URL
-  "https://js.stripe.com", 'https://hi-tech-store-front.vercel.app'                           // Allow Stripe's API
+  process.env.FRONTEND_URL, // GitHub Pages
+  process.env.FRONTEND_URL_VERCEL, // Vercel Frontend
+  "http://localhost:5173", // Local Development
+  "https://js.stripe.com", // Stripe
 ];
+
 
 const corsOptions = {
   origin: (origin, callback) => {
