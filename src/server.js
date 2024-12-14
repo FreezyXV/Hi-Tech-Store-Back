@@ -120,4 +120,5 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, connectToDB };
+// module.exports = { app, connectToDB };
+module.exports = app;
