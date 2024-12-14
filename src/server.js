@@ -34,7 +34,11 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 
-const allowedOrigins = ["http://localhost:5173", "https://js.stripe.com"];
+const allowedOrigins = [
+  process.env.FRONTEND_URL || "http://localhost:5173", // Allow localhost during development
+  "https://freezyxv.github.io",                       // Allow your GitHub Pages URL
+  "https://js.stripe.com",                            // Allow Stripe's API
+];
 
 const corsOptions = {
   origin: allowedOrigins,
