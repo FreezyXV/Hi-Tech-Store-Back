@@ -37,7 +37,7 @@ const errorHandler = require("./middlewares/errorHandler");
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:5173", // Allow localhost during development
   "https://freezyxv.github.io",                       // Allow your GitHub Pages URL
-  "https://js.stripe.com",                            // Allow Stripe's API
+  "https://js.stripe.com", 'https://hi-tech-store-front.vercel.app'                           // Allow Stripe's API
 ];
 
 const corsOptions = {
@@ -99,14 +99,16 @@ if (require.main === module) {
     console.log(`HTTP server running on http://localhost:${PORT}`);
     await connectToDB();
 
-    if (process.env.NGROK_AUTHTOKEN) {
-      const tunnel = await ngrok.connect({
-        addr: PORT,
-        authtoken: process.env.NGROK_AUTHTOKEN,
-        proto: "http",
-      });
-      console.log(`Ngrok tunnel established at ${tunnel.url}`);
-    }
+    // if (process.env.NGROK_AUTHTOKEN) {
+    //   const tunnel = await ngrok.connect({
+    //     addr: PORT,
+    //     authtoken: process.env.NGROK_AUTHTOKEN,
+    //     proto: "http",
+    //   });
+    //   console.log(`Ngrok tunnel established at ${tunnel.url}`);
+    // }
+    console.log(`Server running on port ${PORT}`);
+
   });
 }
 
