@@ -1,17 +1,18 @@
 const Redis = require("ioredis");
 
 const redisClient = new Redis({
-  host: "redis-11637.c339.eu-west-3-1.ec2.reds.redis-cloud.com", // Replace with your Redis host
-  port: 11637, // Replace with your Redis port
-  password: "6oGYojWpX8lpJ3rJ4CvHqgRTlyLL6C3L", // Replace with your Redis password
+  host: "pumped-possum-29949.upstash.io", // Upstash Redis Host
+  port: 6379, // Upstash Redis Port
+  password: "AXT9AAIjcDE5NDRiNjM0ZDY1OWE0MDc3ODBmNDlmNDcwZDFhNmU0M3AxMA", // Upstash Redis Password
+  tls: {}, // Ensure TLS is enabled for secure communication
 });
 
 redisClient.on("connect", () => {
-  console.log("Connected to Redis Cloud successfully!");
+  console.log("Connected to Redis Cloud (Upstash) successfully!");
 });
 
 redisClient.on("error", (err) => {
-  console.error("Error connecting to Redis Cloud:", err.message);
+  console.error("Error connecting to Redis Cloud (Upstash):", err.message);
 });
 
 module.exports = redisClient;
