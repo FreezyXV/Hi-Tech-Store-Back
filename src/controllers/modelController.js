@@ -20,25 +20,7 @@ exports.getModelById = asyncHandler(async (req, res, next) => {
   res.status(200).json({ success: true, data: model });
 });
 
-// Fetch models with startPrice
-exports.getModelsWithStartPrice = asyncHandler(async (req, res) => {
-  const models = await Model.find({ brandId: req.params.brandId })
-    .select("name imageUrls features variants")
-    .populate({
-      path: "variants",
-      select: "price",
-    });
 
-  const modelsWithStartPrice = models.map((model) => {
-    const startPrice = model.variants?.length
-      ? Math.min(...model.variants.map((v) => v.price))
-      : null;
-
-    return { ...model.toObject(), startPrice };
-  });
-
-  res.status(200).json({ success: true, data: modelsWithStartPrice });
-});
 
 // Fetch models by category
 exports.getModelsByCategory = asyncHandler(async (req, res, next) => {
