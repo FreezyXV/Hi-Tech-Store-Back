@@ -41,8 +41,8 @@ const errorHandler = require("./middlewares/errorHandler");
 // ];
 
 const allowedOrigins = [
-  process.env.FRONTEND_URL, // GitHub Pages
-  process.env.FRONTEND_URL_VERCEL, // Vercel Frontend
+  "https://freezyxv.github.io", // GitHub Pages
+  "https://hi-tech-store-front.vercel.app", // Vercel Frontend
   "http://localhost:5173", // Local Development
   "https://js.stripe.com", // Stripe
 ];
