@@ -1,10 +1,10 @@
-//server.js
+// server.js
 const http = require("http");
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const ngrok = require("@ngrok/ngrok");
+// const ngrok = require("@ngrok/ngrok"); // Décommenter si nécessaire
 
 dotenv.config();
 
@@ -34,19 +34,12 @@ const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 
-// const allowedOrigins = [
-//   process.env.FRONTEND_URL || "http://localhost:5173", // Allow localhost during development
-//   "https://freezyxv.github.io",                       // Allow your GitHub Pages URL
-//   "https://js.stripe.com", 'https://hi-tech-store-front.vercel.app'                           // Allow Stripe's API
-// ];
-
 const allowedOrigins = [
   "https://freezyxv.github.io", // GitHub Pages
   "https://hi-tech-store-front.vercel.app", // Vercel Frontend
   "http://localhost:5173", // Local Development
   "https://js.stripe.com", // Stripe
 ];
-
 
 const corsOptions = {
   origin: (origin, callback) => {
@@ -68,7 +61,10 @@ app.use(express.json());
 const connectToDB = async () => {
   try {
     mongoose.set("debug", true);
-    await mongoose.connect(process.env.MONGO_URI);
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     console.log("Connected to MongoDB");
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
@@ -79,7 +75,7 @@ const connectToDB = async () => {
 // Routes
 app.use("/api/categories", categoryRoutes);
 app.use("/api/categories/:categoryId/brands", brandRoutes);
-app.use("/api/categories/:categoryId/brands", modelRoutes);
+app.use("/api/categories/:categoryId/brands/:brandId/models", modelRoutes);
 
 app.use(
   "/api/categories/:categoryId/brands/:brandId/models/:modelId/variants",
@@ -103,26 +99,20 @@ app.get("/", (req, res) => {
 
 app.use((req, res) => res.status(404).json({ message: "Not Found" }));
 
-if (require.main === module) {
-  const PORT = process.env.PORT || 5002;
-  const server = http.createServer(app);
+const PORT = process.env.PORT || 5002;
+const server = http.createServer(app);
 
-  server.listen(PORT, async () => {
-    console.log(`HTTP server running on http://localhost:${PORT}`);
-    await connectToDB();
+server.listen(PORT, async () => {
+  console.log(`HTTP server running on http://localhost:${PORT}`);
+  await connectToDB();
+  console.log(`Server running on port ${PORT}`);
 
-    // if (process.env.NGROK_AUTHTOKEN) {
-    //   const tunnel = await ngrok.connect({
-    //     addr: PORT,
-    //     authtoken: process.env.NGROK_AUTHTOKEN,
-    //     proto: "http",
-    //   });
-    //   console.log(`Ngrok tunnel established at ${tunnel.url}`);
-    // }
-    console.log(`Server running on port ${PORT}`);
-
-  });
-}
-
-// module.exports = { app, connectToDB };
-module.exports = app;
+  // if (process.env.NGROK_AUTHTOKEN) {
+  //   const tunnel = await ngrok.connect({
+  //     addr: PORT,
+  //     authtoken: process.env.NGROK_AUTHTOKEN,
+  //     proto: "http",
+  //   });
+  //   console.log(`Ngrok tunnel established at ${tunnel.url}`);
+  // }
+});
