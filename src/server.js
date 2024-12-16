@@ -97,6 +97,10 @@ app.use("/api/cart", cartRoutes);
 app.set("trust proxy", true);
 app.use(errorHandler);
 
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to the Hi Tech Store Backend Server" });
+});
+
 app.use((req, res) => res.status(404).json({ message: "Not Found" }));
 
 if (require.main === module) {
