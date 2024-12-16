@@ -1,4 +1,4 @@
-// brandRoutes.js
+// routes/brandRoutes.js
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 const {
@@ -7,6 +7,7 @@ const {
   createBrand,
   updateBrand,
   deleteBrand,
+  getModelsWithStartPrice,
 } = require("../controllers/brandController");
 const { validateBrand } = require("../middlewares/validation");
 const asyncHandler = require("../middlewares/asyncHandler");
@@ -25,5 +26,8 @@ router.put("/:brandId", validateBrand, asyncHandler(updateBrand));
 
 // Delete a brand
 router.delete("/:brandId", asyncHandler(deleteBrand));
+
+// Fetch models with start price for a brand
+router.get("/:brandId/models-with-start-price", asyncHandler(getModelsWithStartPrice));
 
 module.exports = router;

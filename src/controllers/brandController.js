@@ -58,3 +58,23 @@ exports.deleteBrand = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, message: 'Brand deleted successfully' });
 });
+
+// Fetch models with startPrice
+exports.getModelsWithStartPrice = asyncHandler(async (req, res) => {
+  const models = await Model.find({ brandId: req.params.brandId })
+    .select("name imageUrls features variants")
+    .populate({
+      path: "variants",
+      select: "price",
+    });
+
+  const modelsWithStartPrice = models.map((model) => {
+    const startPrice = model.variants?.length
+      ? Math.min(...model.variants.map((v) => v.price))
+      : null;
+
+    return { ...model.toObject(), startPrice };
+  });
+
+  res.status(200).json({ success: true, data: modelsWithStartPrice });
+});
