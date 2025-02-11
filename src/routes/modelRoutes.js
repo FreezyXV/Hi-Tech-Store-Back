@@ -7,13 +7,9 @@ const {
   createModel,
   updateModel,
   deleteModel,
-  getModelsWithStartPrice,
 } = require("../controllers/modelController");
 const { validateModel } = require("../middlewares/validation");
 const asyncHandler = require("../middlewares/asyncHandler");
-
-// Route pour récupérer les modèles avec le prix de départ
-router.get("/models-with-start-price", asyncHandler(getModelsWithStartPrice));
 
 // Routes pour gérer les modèles
 router.get("/", asyncHandler(getModels));

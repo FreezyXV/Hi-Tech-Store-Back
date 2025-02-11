@@ -39,6 +39,7 @@ const allowedOrigins = [
   "https://hi-tech-store-front.vercel.app", // Vercel Frontend
   "http://localhost:5173", // Local Development
   "https://js.stripe.com", // Stripe
+  "http://localhost:3000"
 ];
 
 const corsOptions = {
