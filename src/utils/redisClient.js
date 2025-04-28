@@ -1,13 +1,7 @@
 // utils/redisClient.js
 const Redis = require("ioredis");
-require("dotenv").config(); // Important to load your .env variables
 
-const redisClient = new Redis({
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
-  password: process.env.REDIS_PASSWORD,
-  tls: {}, // Mandatory for Upstash
-});
+const redisClient = new Redis(process.env.REDIS_URL);
 
 redisClient.on("connect", () => {
   console.log("✅ Connected to Redis (Upstash) successfully!");
