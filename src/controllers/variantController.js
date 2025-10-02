@@ -2,6 +2,7 @@
 const { Variant, Model } = require("../models/category");
 const AppError = require("../utils/appError");
 const asyncHandler = require("../middlewares/asyncHandler");
+const redisClient = require("../utils/redisClient");
 
 // Fetch all variants for a specific model
 exports.getVariants = asyncHandler(async (req, res, next) => {
@@ -28,8 +29,34 @@ exports.getVariantById = asyncHandler(async (req, res, next) => {
 // variantsController.js
 exports.getVariantsByIds = asyncHandler(async (req, res, next) => {
   const { variantIds } = req.body;
-  const variants = await Variant.find({ _id: { $in: variantIds } });
-  res.status(200).json({ success: true, data: variants });
+
+  if (!variantIds || !Array.isArray(variantIds) || variantIds.length === 0) {
+    return next(new AppError("Variant IDs are required", 400));
+  }
+
+  const cacheKey = `variants:batch:${variantIds.sort().join(',')}`;
+
+  try {
+    const cachedVariants = await redisClient.get(cacheKey);
+    if (cachedVariants) {
+      return res.status(200).json(JSON.parse(cachedVariants));
+    }
+
+    const variants = await Variant.find({ _id: { $in: variantIds } }).select(
+      "name sku imageUrls price stock color bracelet braceletColor size modem ram chip storage"
+    );
+
+    const response = { success: true, data: variants };
+    await redisClient.set(cacheKey, JSON.stringify(response), "EX", 300); // Cache for 5 minutes
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching variants by IDs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching variants",
+    });
+  }
 });
 
 // Create a new variant under a specific model

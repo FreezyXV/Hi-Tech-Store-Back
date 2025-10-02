@@ -24,6 +24,7 @@
     "axios": "^1.7.3",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -33,10 +34,7 @@
     "jsonwebtoken": "^9.0.2",
     "mongo-sanitize": "^1.1.0",
     "morgan": "^1.10.0",
-    "redis": "^4.7.0",
-    "reselect": "^5.1.1",
     "stripe": "^17.4.0",
-    "swiper": "^11.1.15",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
