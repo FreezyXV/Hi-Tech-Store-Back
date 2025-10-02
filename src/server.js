@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cors = require("cors");
+const compression = require("compression");
 // const ngrok = require("@ngrok/ngrok"); // Décommenter si nécessaire
 
 dotenv.config();
@@ -55,18 +56,22 @@ const corsOptions = {
   credentials: true,
 };
 
+app.use(compression());
 app.use(cors(corsOptions));
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Connect to MongoDB
 const connectToDB = async () => {
   try {
     mongoose.set("debug", true);
     await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      bufferCommands: false,
+      bufferMaxEntries: 0
     });
-    console.log("Connected to MongoDB");
+    console.log("Connected to MongoDB with connection pooling");
   } catch (err) {
     console.error("Error connecting to MongoDB:", err);
     process.exit(1);
