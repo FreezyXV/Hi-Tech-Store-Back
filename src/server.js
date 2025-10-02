@@ -68,8 +68,7 @@ const connectToDB = async () => {
       maxPoolSize: 10,
       serverSelectionTimeoutMS: 5000,
       socketTimeoutMS: 45000,
-      bufferCommands: false,
-      bufferMaxEntries: 0
+      bufferCommands: false
     });
     console.log("Connected to MongoDB with connection pooling");
   } catch (err) {
