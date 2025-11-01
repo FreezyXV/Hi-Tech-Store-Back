@@ -2,6 +2,7 @@
 
 This is the backend for the Hi-Tech Store, a full-stack e-commerce application designed to showcase a wide variety of electronic products. The backend is built with Node.js and Express, and it provides a RESTful API for managing products, users, orders, and more.
 
+
 ## Table of Contents
 
 *   [About The Project](#about-the-project)
