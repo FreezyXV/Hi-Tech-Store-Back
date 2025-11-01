@@ -3,6 +3,8 @@ const User = require('../models/user');
 const { Variant } = require('../models/category');
 const asyncHandler = require('../middlewares/asyncHandler');
 const AppError = require('../utils/appError');
+const { findUserOrFail, findUserWithPopulate } = require('../utils/userHelpers');
+const errorMessages = require('../utils/errorMessages');
 const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
@@ -17,7 +19,7 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
   // Check for existing user
   const existingUser = await User.findOne({ $or: [{ email }, { username }] });
   if (existingUser) {
-    return next(new AppError('Email or Username already exists', 400));
+    return next(new AppError(errorMessages.auth.emailOrUsernameExists, 400));
   }
 
   // Create new user
@@ -26,7 +28,12 @@ exports.registerUser = asyncHandler(async (req, res, next) => {
 
   // Generate JWT token
   const token = generateToken(newUser._id);
-  res.status(201).json({ message: 'User registered successfully', token, user: newUser });
+  res.status(201).json({
+    success: true,
+    message: errorMessages.auth.userRegistered,
+    token,
+    data: newUser
+  });
 });
 
 // Login Controller
@@ -36,18 +43,22 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
   // Find user by email
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new AppError('Invalid email or password', 400));
+    return next(new AppError(errorMessages.auth.invalidCredentials, 400));
   }
 
   // Check password
   const isMatch = await user.matchPassword(password);
   if (!isMatch) {
-    return next(new AppError('Invalid email or password', 400));
+    return next(new AppError(errorMessages.auth.invalidCredentials, 400));
   }
 
   // Generate JWT token
   const token = generateToken(user._id);
-  res.status(200).json({ token, user: { id: user._id, email: user.email, username: user.username } });
+  res.status(200).json({
+    success: true,
+    token,
+    data: { id: user._id, email: user.email, username: user.username }
+  });
 });
 
 // Get Profile Controller
@@ -68,16 +79,19 @@ exports.getProfile = asyncHandler(async (req, res, next) => {
     });
 
   if (!user) {
-    return next(new AppError('User not found', 404));
+    return next(new AppError(errorMessages.notFound('User'), 404));
   }
 
   res.status(200).json({
-    id: user._id,
-    username: user.username,
-    email: user.email,
-    createdAt: user.createdAt,
-    wishlist: user.wishlist || [],
-    orders: user.orders || [],
+    success: true,
+    data: {
+      id: user._id,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      wishlist: user.wishlist || [],
+      orders: user.orders || [],
+    }
   });
 });
 
@@ -85,38 +99,36 @@ exports.getProfile = asyncHandler(async (req, res, next) => {
 exports.changePassword = asyncHandler(async (req, res, next) => {
   const { currentPassword, newPassword } = req.body;
 
-  const user = await User.findById(req.user.userId);
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
+  const user = await findUserOrFail(req.user.userId);
 
   // Check current password
   const isMatch = await user.matchPassword(currentPassword);
   if (!isMatch) {
-    return next(new AppError('Current password is incorrect', 400));
+    return next(new AppError(errorMessages.auth.incorrectPassword, 400));
   }
 
   // Update password
   user.password = newPassword; // Pre-save hook will hash this
   await user.save();
 
-  res.status(200).json({ message: 'Password changed successfully' });
+  res.status(200).json({ success: true, message: errorMessages.auth.passwordChanged });
 });
 
 // Update User Controller
 exports.updateUser = asyncHandler(async (req, res, next) => {
   const { email, username, role } = req.body;
-  const user = await User.findById(req.user.userId);
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
+  const user = await findUserOrFail(req.user.userId);
 
   if (email) user.email = email;
   if (username) user.username = username;
   if (role) user.role = role;
 
   await user.save();
-  res.status(200).json({ message: 'User updated successfully', user });
+  res.status(200).json({
+    success: true,
+    message: errorMessages.auth.profileUpdated,
+    data: user
+  });
 });
 
 // Add to Wishlist Controller
@@ -124,51 +136,52 @@ exports.addToUserWishlist = asyncHandler(async (req, res, next) => {
   const { variantId } = req.body;
 
   if (!variantId) {
-    return next(new AppError('Variant ID is required', 400));
+    return next(new AppError(errorMessages.required('Variant ID'), 400));
   }
-
-  console.log('Received variantId:', variantId);
 
   const variant = await Variant.findById(variantId).select('name price imageUrls');
   if (!variant) {
-    return next(new AppError('Variant not found', 404));
+    return next(new AppError(errorMessages.notFound('Variant'), 404));
   }
 
-  const user = await User.findById(req.user.userId);
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
+  const user = await findUserOrFail(req.user.userId);
 
   // Check if the variant is already in the wishlist
   const alreadyInWishlist = user.wishlist.some((v) => v.toString() === variantId);
   if (alreadyInWishlist) {
-    return res.status(200).json({ message: 'Variant already in wishlist' });
+    return res.status(200).json({
+      success: true,
+      message: errorMessages.wishlist.alreadyExists
+    });
   }
 
   user.wishlist.push(variantId);
   await user.save();
 
-  console.log('Updated wishlist:', user.wishlist);
-
-  res.status(200).json({ message: 'Variant added to wishlist', wishlist: user.wishlist });
+  res.status(200).json({
+    success: true,
+    message: errorMessages.wishlist.added,
+    data: user.wishlist
+  });
 });
 
 // Remove from Wishlist Controller
 exports.removeFromUserWishlist = asyncHandler(async (req, res, next) => {
   const { variantId } = req.params;
+
   if (!variantId) {
-    return next(new AppError('Variant ID is required', 400));
+    return next(new AppError(errorMessages.required('Variant ID'), 400));
   }
 
-  const user = await User.findById(req.user.userId);
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
+  const user = await findUserOrFail(req.user.userId);
 
   user.wishlist = user.wishlist.filter(id => id.toString() !== variantId);
   await user.save();
 
-  res.status(200).json({ message: 'Variant removed from wishlist' });
+  res.status(200).json({
+    success: true,
+    message: errorMessages.wishlist.removed
+  });
 });
 
 // Get User Wishlist Controller
@@ -179,18 +192,13 @@ exports.getUserWishlist = asyncHandler(async (req, res, next) => {
     return next(new AppError('User ID is missing', 400));
   }
 
-  console.log('Fetching wishlist for userId:', userId);
-
-  const user = await User.findById(userId).populate({
+  const user = await findUserWithPopulate(userId, {
     path: 'wishlist',
-    select: 'name price imageUrls specifications', // Fields to populate
+    select: 'name price imageUrls specifications',
   });
 
-  if (!user) {
-    return next(new AppError('User not found', 404));
-  }
-
-  console.log('Fetched wishlist:', user.wishlist);
-
-  res.status(200).json({ wishlist: user.wishlist });
+  res.status(200).json({
+    success: true,
+    data: user.wishlist
+  });
 });

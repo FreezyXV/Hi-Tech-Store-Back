@@ -1,59 +1,46 @@
-//revieuwController.js
 // controllers/reviewController.js
-const Review = require('../models/Review');
+const Review = require('../models/review');
+const asyncHandler = require('../middlewares/asyncHandler');
+const AppError = require('../utils/appError');
+const errorMessages = require('../utils/errorMessages');
 
 // Get reviews for models or variants
-exports.getReviews = async (req, res) => {
+exports.getReviews = asyncHandler(async (req, res) => {
   const { modelId, variantId } = req.params;
-  try {
-    const query = modelId ? { modelId } : { variantId };
-    const reviews = await Review.find(query).populate('user', 'username');
-    res.json(reviews);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch reviews' });
-  }
-};
+  const query = modelId ? { modelId } : { variantId };
+  const reviews = await Review.find(query).populate('user', 'username');
+  res.status(200).json({ success: true, data: reviews });
+});
 
 // Add a new review
-exports.addReview = async (req, res) => {
+exports.addReview = asyncHandler(async (req, res) => {
   const { modelId, variantId } = req.params;
   const { rating, comment } = req.body;
 
   if (!rating || !comment) {
-    return res.status(400).json({ error: 'Rating and comment are required' });
+    throw new AppError('Rating and comment are required', 400);
   }
 
-  try {
-    const review = new Review({
-      modelId,
-      variantId,
-      user: req.user.userId,
-      rating,
-      comment,
-    });
+  const review = new Review({
+    modelId,
+    variantId,
+    user: req.user.userId,
+    rating,
+    comment,
+  });
 
-    await review.save();
-    res.status(201).json(review);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add review' });
-  }
-};
-
+  await review.save();
+  res.status(201).json({ success: true, data: review, message: errorMessages.review.added });
+});
 
 // Delete a review
-exports.deleteReview = async (req, res) => {
-    const { reviewId } = req.params;
-  
-    try {
-      const deletedReview = await Review.findByIdAndDelete(reviewId);
-  
-      if (!deletedReview) {
-        return res.status(404).json({ error: "Review not found" });
-      }
-  
-      res.status(200).json({ message: "Review deleted successfully", review: deletedReview });
-    } catch (error) {
-      console.error("Error deleting review:", error);
-      res.status(500).json({ error: "Failed to delete review" });
-    }
-  };
+exports.deleteReview = asyncHandler(async (req, res) => {
+  const { reviewId } = req.params;
+  const deletedReview = await Review.findByIdAndDelete(reviewId);
+
+  if (!deletedReview) {
+    throw new AppError(errorMessages.notFound('Review'), 404);
+  }
+
+  res.status(200).json({ success: true, message: errorMessages.review.deleted, data: deletedReview });
+});

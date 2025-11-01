@@ -1,27 +1,20 @@
-const express = require("express");
+const express = require('express');
 const {
   getUserById,
   getAllUsers,
   updateUser,
   deleteUser,
-} = require("../controllers/userController");
-const {
-  addToUserWishlist,
-  removeFromUserWishlist,
-} = require("../controllers/authController");
-const auth = require("../middlewares/authMiddleware");
+} = require('../controllers/userController');
+const auth = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get("/:id", auth, getUserById);
-router.get("/", auth, getAllUsers);
-router.put("/:id", auth, updateUser);
-router.delete("/:id", auth, deleteUser);
+router.get('/:id', auth, getUserById);
+router.get('/', auth, getAllUsers);
+router.put('/:id', auth, updateUser);
+router.delete('/:id', auth, deleteUser);
 
-// Add to wishlist
-router.post("/wishlist", auth, addToUserWishlist);
-
-// Remove from wishlist
-router.delete("/wishlist/:variantId", auth, removeFromUserWishlist);
+// NOTE: Wishlist routes have been moved to authRoutes.js for better semantic organization
+// Wishlist operations are user-specific and handled through /api/auth/wishlist endpoints
 
 module.exports = router;

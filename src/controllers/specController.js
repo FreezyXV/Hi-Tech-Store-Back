@@ -1,21 +1,20 @@
-//specController.js 
-exports.getSpecifications = async (req, res) => {
-  try {
-    const { variantId } = req.query;
+// controllers/specController.js
+const asyncHandler = require('../middlewares/asyncHandler');
+const AppError = require('../utils/appError');
+const errorMessages = require('../utils/errorMessages');
 
-    if (!variantId) {
-      return res.status(400).json({ message: 'Variant ID is required' });
-    }
+exports.getSpecifications = asyncHandler(async (req, res) => {
+  const { variantId } = req.query;
 
-    const product = await Product.findOne({ 'variant._id': variantId });
-
-    if (!product) {
-      return res.status(404).json({ message: 'Product not found' });
-    }
-
-    res.json(product.specifications);
-  } catch (error) {
-    console.error('Error fetching specifications:', error);
-    res.status(500).json({ message: 'Server error' });
+  if (!variantId) {
+    throw new AppError(errorMessages.required('Variant ID'), 400);
   }
-};
+
+  const product = await Product.findOne({ 'variant._id': variantId });
+
+  if (!product) {
+    throw new AppError(errorMessages.notFound('Product'), 404);
+  }
+
+  res.status(200).json({ success: true, data: product.specifications });
+});
