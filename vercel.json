@@ -1,24 +1,16 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "src/server.js",
-        "use": "@vercel/node"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "src/server.js"
-      }
-    ],
-    "env": {
-      "MONGO_URI": "@mongo_uri",
-      "JWT_SECRET": "@jwt_secret",
-      "STRIPE_SECRET_KEY": "@stripe_secret_key",
-      "REDIS_URL": "@redis_url",
-      "FRONTEND_URL": "@frontend_url",
-      "FRONTEND_URL_VERCEL": "@frontend_url_vercel"
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/server.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/server.js"
+    }
+  ]
+}
   

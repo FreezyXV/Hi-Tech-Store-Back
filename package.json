@@ -33,6 +33,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mongo-sanitize": "^1.1.0",
+    "mongoose": "^8.8.4",
     "morgan": "^1.10.0",
     "stripe": "^17.4.0",
     "uuid": "^10.0.0"
@@ -43,7 +44,6 @@
     "jest-mock-extended": "^4.0.0-beta1",
     "mocha": "^10.8.2",
     "mongodb-memory-server": "^10.1.2",
-    "mongoose": "^8.8.4",
     "nodemon": "^2.0.22",
     "sinon": "^19.0.2",
     "supertest": "^7.0.0"
