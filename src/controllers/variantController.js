@@ -37,9 +37,12 @@ exports.getVariantsByIds = asyncHandler(async (req, res, next) => {
   const cacheKey = `variants:batch:${variantIds.sort().join(',')}`;
 
   try {
-    const cachedVariants = await redisClient.get(cacheKey);
-    if (cachedVariants) {
-      return res.status(200).json(JSON.parse(cachedVariants));
+    // Only use cache if Redis is available
+    if (redisClient) {
+      const cachedVariants = await redisClient.get(cacheKey);
+      if (cachedVariants) {
+        return res.status(200).json(JSON.parse(cachedVariants));
+      }
     }
 
     const variants = await Variant.find({ _id: { $in: variantIds } }).select(
@@ -47,7 +50,11 @@ exports.getVariantsByIds = asyncHandler(async (req, res, next) => {
     );
 
     const response = { success: true, data: variants };
-    await redisClient.set(cacheKey, JSON.stringify(response), "EX", 300); // Cache for 5 minutes
+
+    // Cache for 5 minutes if Redis is available
+    if (redisClient) {
+      await redisClient.set(cacheKey, JSON.stringify(response), "EX", 300);
+    }
 
     res.status(200).json(response);
   } catch (error) {

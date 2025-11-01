@@ -99,7 +99,7 @@ const modelSchema = new Schema(
       required: true,
     },
     categoryName: { type: String, required: true },
-    name: { type: String, required: true, index: true },
+    name: { type: String, required: true },
     imageUrls: { type: String, required: true },
     features: [String],
     specifications: specificationSchema,
@@ -120,7 +120,7 @@ const brandSchema = new Schema(
       ref: "Category",
       required: true,
     },
-    name: { type: String, required: true, index: true },
+    name: { type: String, required: true },
     models: [{ type: Schema.Types.ObjectId, ref: "Model" }],
   },
   { timestamps: true }
@@ -129,7 +129,7 @@ const brandSchema = new Schema(
 // Category Schema
 const categorySchema = new Schema(
   {
-    name: { type: String, required: true, index: true },
+    name: { type: String, required: true },
     imageUrls: { type: String },
     description: { type: String },
     brands: [{ type: Schema.Types.ObjectId, ref: "Brand" }],

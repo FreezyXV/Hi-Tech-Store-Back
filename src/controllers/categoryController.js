@@ -11,9 +11,12 @@ exports.getCategories = asyncHandler(async (req, res) => {
   const cacheKey = minimal ? `categories:all:minimal` : `categories:all`;
 
   try {
-    const cachedCategories = await redisClient.get(cacheKey);
-    if (cachedCategories) {
-      return res.status(200).json(JSON.parse(cachedCategories));
+    // Only use cache if Redis is available
+    if (redisClient) {
+      const cachedCategories = await redisClient.get(cacheKey);
+      if (cachedCategories) {
+        return res.status(200).json(JSON.parse(cachedCategories));
+      }
     }
 
     // Choose which fields to select based on the minimal flag.
@@ -25,8 +28,10 @@ exports.getCategories = asyncHandler(async (req, res) => {
     };
 
     // Cache for 10 minutes if minimal data is returned; otherwise, 5 minutes.
-    const expiration = minimal ? 600 : 300;
-    await redisClient.set(cacheKey, JSON.stringify(response), "EX", expiration);
+    if (redisClient) {
+      const expiration = minimal ? 600 : 300;
+      await redisClient.set(cacheKey, JSON.stringify(response), "EX", expiration);
+    }
 
     res.status(200).json(response);
   } catch (error) {
