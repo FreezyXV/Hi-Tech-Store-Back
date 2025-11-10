@@ -105,19 +105,23 @@ app.get("/", (req, res) => {
 app.use((req, res) => res.status(404).json({ message: "Not Found" }));
 
 const PORT = process.env.PORT || 5002;
-const server = http.createServer(app);
 
-server.listen(PORT, async () => {
-  console.log(`HTTP server running on http://localhost:${PORT}`);
+const startServer = async () => {
   await connectToDB();
-  console.log(`Server running on port ${PORT}`);
+  const server = http.createServer(app);
 
-  // if (process.env.NGROK_AUTHTOKEN) {
-  //   const tunnel = await ngrok.connect({
-  //     addr: PORT,
-  //     authtoken: process.env.NGROK_AUTHTOKEN,
-  //     proto: "http",
-  //   });
-  //   console.log(`Ngrok tunnel established at ${tunnel.url}`);
-  // }
-});
+  server.listen(PORT, () => {
+    console.log(`HTTP server running on http://localhost:${PORT}`);
+  });
+
+  return server;
+};
+
+if (require.main === module) {
+  startServer().catch((err) => {
+    console.error("Failed to start server:", err);
+    process.exit(1);
+  });
+}
+
+module.exports = { app, startServer };

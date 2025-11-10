@@ -82,7 +82,7 @@ describe("OrderController", () => {
 
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("success", true);
-    expect(res.body.order).toHaveProperty("totalAmount", 105);
+    expect(res.body.data).toHaveProperty("totalAmount", 105);
   });
 
   it("should fetch an order by ID", async () => {
@@ -108,6 +108,6 @@ describe("OrderController", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("success", true);
-    expect(res.body.order).toHaveProperty("totalAmount", 105);
+    expect(res.body.data).toHaveProperty("totalAmount", 105);
   });
 });

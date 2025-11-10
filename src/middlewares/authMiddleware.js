@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const authMiddleware = (req, res, next) => {
   const token = req.header('Authorization')?.replace('Bearer ', '');
+
   if (!token) {
     console.error("Authorization error: No token provided.");
     return res.status(401).json({ error: 'Unauthorized: No token provided' });
@@ -10,8 +11,16 @@ const authMiddleware = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; 
-    console.log("User authenticated:", decoded);
+
+    // Expose the user identifier with consistent naming for downstream handlers
+    req.user = {
+      ...decoded,
+      _id: decoded.userId,
+      userId: decoded.userId,
+    };
+    req.userId = decoded.userId;
+
+    console.log("User authenticated:", decoded.userId);
     next();
   } catch (err) {
     console.error("Authorization error: Invalid or expired token.");
@@ -20,6 +29,5 @@ const authMiddleware = (req, res, next) => {
 };
 
 module.exports = authMiddleware;
-
 
 

@@ -18,7 +18,7 @@ describe("AuthController", () => {
     expect(res.status).toBe(201);
     expect(res.body).toHaveProperty("message", "User registered successfully");
     expect(res.body).toHaveProperty("token");
-    expect(res.body.user).toHaveProperty("email", "test@example.com");
+    expect(res.body.data).toHaveProperty("email", "test@example.com");
   });
 
   it("should login an existing user", async () => {
@@ -36,7 +36,7 @@ describe("AuthController", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("token");
-    expect(res.body.user).toHaveProperty("email", "test@example.com");
+    expect(res.body.data).toHaveProperty("email", "test@example.com");
   });
 
   it("should return error for invalid credentials", async () => {

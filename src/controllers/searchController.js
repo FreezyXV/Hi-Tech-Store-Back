@@ -23,28 +23,48 @@ exports.searchModels = asyncHandler(async (req, res) => {
     name: { $regex: query, $options: 'i' }
   });
 
+  const relevantBrandIds = [
+    ...new Set([
+      ...brandsInMatchedCategories.map((brand) => brand._id.toString()),
+      ...matchedBrandsByName.map((brand) => brand._id.toString()),
+    ]),
+  ];
+
   const models = await Model.find({
     $or: [
       { name: { $regex: query, $options: 'i' } },
-      {
-        brandId: { $in: brandsInMatchedCategories.map((brand) => brand._id) },
-      },
-      {
-        brandId: { $in: matchedBrandsByName.map((brand) => brand._id) },
-      },
+      { brandId: { $in: relevantBrandIds } },
     ],
   })
-    .populate('brandId')
+    .populate({
+      path: 'brandId',
+      select: 'name categoryId',
+      populate: {
+        path: 'categoryId',
+        select: 'name',
+      },
+    })
     .populate('variants');
 
-  const results = models.map((model) => ({
-    _id: model._id,
-    name: model.name,
-    brand: model.brandId.name,
-    category: model.brandId.categoryId.name,
-    imageUrls: model.imageUrls,
-    variants: model.variants,
-  }));
+  const results = models.map((model) => {
+    const brand = model.brandId;
+    const category = brand?.categoryId;
+
+    return {
+      _id: model._id,
+      name: model.name,
+      brand: {
+        id: brand?._id,
+        name: brand?.name || 'Unknown Brand',
+      },
+      category: {
+        id: category?._id || category || null,
+        name: category?.name || 'Unknown Category',
+      },
+      imageUrls: model.imageUrls,
+      variants: model.variants,
+    };
+  });
 
   res.status(200).json({ success: true, data: results });
 });
